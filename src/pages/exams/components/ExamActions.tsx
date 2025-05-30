@@ -2,27 +2,44 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 
+
+
 interface ExamActionsProps {
   examId: string;
 }
 
 const ExamActions = ({ examId }: ExamActionsProps) => {
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
   const [showRegisterModal, setShowRegisterModal] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [successData, setSuccessData] = useState<{
+    message: string;
+    downloadUrl?: string;
+    details?: any;
+    failedCount?: number;
+    sampleError?: any;
+    sampleSuccess?: any;
+    errorMessages?: string | null;
+    summary?: {
+      successCount: number;
+      duplicateCount: number;
+      errorCount: number;
+    };
+    rawData?: any;
+  } | null>(null);
 
   const openRegisterModal = () => {
     setFile(null);
     setError(null);
-    setSuccessMessage(null);
+    setSuccessData(null);
     setShowRegisterModal(true);
   };
 
   const closeRegisterModal = () => {
     setShowRegisterModal(false);
-    setSuccessMessage(null);
+    setSuccessData(null);
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -31,43 +48,78 @@ const ExamActions = ({ examId }: ExamActionsProps) => {
       setError(null);
     }
   };
+const handleUpload = async () => {
+  if (!file) {
+    setError("Please select a file.");
+    return;
+  }
 
-  const handleUpload = async () => {
-    if (!file) {
-      setError("Please select a file.");
-      return;
+  setLoading(true);
+  setError(null);
+  setSuccessData(null);
+
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("examId", examId);
+
+  try {
+    const response = await fetch(`${backendUrl}/api/register-students`, {
+      method: "POST",
+      body: formData,
+    });
+
+    const contentType = response.headers.get('content-type');
+    if (!contentType || !contentType.includes('application/json')) {
+      const text = await response.text();
+      throw new Error(text.includes('<!DOCTYPE') ? 
+        "Server returned an error page" : text);
     }
 
-    setLoading(true);
-    setError(null);
-    setSuccessMessage(null);
+    const data = await response.json();
 
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("examId", examId);
-
-    try {
-      const response = await fetch("http://localhost:5000/api/register-students", {
-        method: "POST",
-        body: formData,
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Upload failed");
-      }
-
-     setSuccessMessage("All students registered successfully!");
-
-    } catch (err: any) {
-      setError(`Failed to upload file: ${err.message || "Unknown error"}`);
-      console.error("Upload error:", err);
-    } finally {
-      setLoading(false);
+    if (!response.ok) {
+      throw new Error(data.error || "Upload failed");
     }
-  };
 
+    // Format detailed results
+    const successMessages = data.processedStudents
+      .filter(s => s.status === "success")
+      .map(s => `Row ${s.row}: Registered ${s.data.name} (${s.data.email})`)
+      .join('\n');
+
+    const duplicateMessages = data.processedStudents
+      .filter(s => s.status === "skipped")
+      .map(s => `Row ${s.row}: Skipped - ${s.reason} (ID: ${s.existingId})`)
+      .join('\n');
+
+    const errorMessages = data.processedStudents
+      .filter(s => s.status === "failed")
+      .map(s => `Row ${s.row}: Failed - ${s.error}`)
+      .join('\n');
+
+    setSuccessData({
+      message: `Registered ${data.successCount}/${data.total} students`,
+      summary: {
+        successCount: data.successCount,
+        duplicateCount: data.duplicateCount,
+        errorCount: data.errorCount
+      },
+      details: {
+        successes: successMessages,
+        duplicates: duplicateMessages,
+        errors: errorMessages
+      },
+      downloadUrl: data.downloadUrl,
+      rawData: data
+    });
+
+  } catch (err: any) {
+    setError(err.message);
+    console.error("Upload error:", err);
+  } finally {
+    setLoading(false);
+  }
+};
   return (
     <>
       <div className="bg-white px-6 py-4 border-b border-gray-200">
@@ -126,11 +178,37 @@ const ExamActions = ({ examId }: ExamActionsProps) => {
               </div>
             )}
 
-            {successMessage && (
-              <div className="p-3 mb-4 text-sm text-green-700 bg-green-100 rounded-lg">
-                {successMessage}
+            {successData && (
+  <div className="space-y-4">
+    <div className="p-3 text-sm text-green-700 bg-green-100 rounded-lg">
+      <strong>{successData.message}</strong>
+      <a 
+        href={`${backendUrl}${successData.downloadUrl}`}
+        className="mt-2 block text-blue-600 hover:underline"
+        download
+      >
+        Download All Student Credentials
+      </a>
+    </div>
+
+    {successData.rawData?.processedStudents?.filter((s: any) => s.status === "failed").length > 0 && (
+      <div className="p-3 text-sm text-red-700 bg-red-100 rounded-lg">
+        <strong>
+          Failed Registrations ({successData.rawData?.processedStudents?.filter((s: any) => s.status === "failed").length}):
+        </strong>
+        <div className="mt-1 max-h-40 overflow-auto">
+          {successData.rawData?.processedStudents
+            ?.filter((s: any) => s.status === "failed")
+            .map((student: any, i: number) => (
+              <div key={i} className="mt-1">
+                <strong>Row {student.row}:</strong> {student.error}
               </div>
-            )}
+            ))}
+        </div>
+      </div>
+    )}
+  </div>
+)}
 
             <div className="mt-6 flex justify-end space-x-4">
               <Button 

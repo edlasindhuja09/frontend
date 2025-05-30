@@ -3,7 +3,10 @@ import { Search, Filter, BookOpen, Calendar, Clock, Award } from "lucide-react";
 import ExamCard from "../components/exams/ExamCard";
 import { ExamData } from "../pages/exams/types";
 
+
+
 const ExamsPage = () => {
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
   const [exams, setExams] = useState<ExamData[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -13,7 +16,7 @@ const ExamsPage = () => {
   useEffect(() => {
     const fetchExams = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/exams");
+        const response = await fetch(`${backendUrl}/api/exams`);
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }

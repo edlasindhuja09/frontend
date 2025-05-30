@@ -2,16 +2,22 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Eye, EyeOff, ArrowLeft } from "lucide-react";
 import UserTypeSelector from "../ui/UserTypeSelector";
+import { useAuth } from "../../contexts/AuthContext";
+
 
 const RegisterForm = () => {
+    const backendUrl = import.meta.env.VITE_BACKEND_URL;
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [userType, setUserType] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
-  const [messageType, setMessageType] = useState<"success" | "error" | null>(null);
+  const [message, setMessage] = useState(null);
+  const [messageType, setMessageType] = useState(null);
+  const { login } = useAuth();
+  
+
 
   const [formData, setFormData] = useState({
     name: "",
@@ -19,64 +25,70 @@ const RegisterForm = () => {
     password: "",
     confirmPassword: "",
     phoneNumber: "",
-    class: "",
-    childEmail: "",
-    childPassword: "",
     schoolName: "",
     schoolId: "",
     address: ""
   });
 
-  const handleUserTypeSelect = (type: string) => {
+  const handleUserTypeSelect = (type) => {
     setUserType(type);
     setStep(2);
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setMessage(null); // Reset message on new submission
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setIsLoading(true);
+  setMessage(null);
 
-    if (formData.password !== formData.confirmPassword) {
-      setMessage("Passwords do not match");
-      setMessageType("error");
-      setIsLoading(false);
-      return;
-    }
+  if (formData.password !== formData.confirmPassword) {
+    setMessage("Passwords do not match");
+    setMessageType("error");
+    setIsLoading(false);
+    return;
+  }
 
-    const payload = {
-      ...formData,
-      userType,
-    };
+  let payload: any = {
+    userType,
+    name: formData.name,
+    email: formData.email,
+    password: formData.password,
+    confirmPassword: formData.confirmPassword
+  };
 
-    try {
-      const response = await fetch("http://localhost:5000/api/signup", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+  if (userType === "admin") {
+    payload.phoneNumber = formData.phoneNumber;
+  }
 
-      const result = await response.json();
-      if (!response.ok) {
-        throw new Error(result.message || "Registration failed");
-      }
+  if (userType === "school") {
+    payload.schoolName = formData.schoolName;
+    payload.schoolId = formData.schoolId;
+    payload.address = formData.address;
+  }
 
-      setMessage("You have registered successfully!");
-      setMessageType("success");
-      console.log("Registered successfully:", result);
+  try {
+    const response = await fetch(`${backendUrl}/api/signup`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
 
-      // Store user token and other details in localStorage
-      localStorage.setItem("userToken", result.token);
-      localStorage.setItem("userName", formData.name);
-      localStorage.setItem("userType", result.userType);
-      localStorage.setItem("userId", result.userId);
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.message || "Registration failed");
 
-      // Wait 2 seconds before navigating to show the message
+    setMessage("You have registered successfully!");
+    setMessageType("success");
+
+    login(result.token, result.userType);
+localStorage.setItem("userName", formData.name);
+localStorage.setItem("userId", result.userId);
+
+
+     // Wait 2 seconds before navigating to show the message
       setTimeout(() => {
         switch (result.userType) {
           case "student":
@@ -105,11 +117,16 @@ const RegisterForm = () => {
     }
   };
 
+
   return (
     <div className="w-full max-w-2xl mx-auto">
       <div className="bg-white rounded-lg shadow-md p-8">
         {step === 1 ? (
-          <UserTypeSelector onSelect={handleUserTypeSelect} mode="signup" />
+          <UserTypeSelector 
+            onSelect={handleUserTypeSelect} 
+            mode="signup" 
+            allowedTypes={["admin", "school"]} // Only show these options
+          />
         ) : (
           <>
             <div className="mb-4">
@@ -121,12 +138,12 @@ const RegisterForm = () => {
               Create Your {userType.charAt(0).toUpperCase() + userType.slice(1)} Account
             </h2>
 
-            {/* Message display - placed right below the title */}
             {message && (
-              <div className={`mb-6 p-3 rounded text-center ${messageType === "success"
+              <div className={`mb-6 p-3 rounded text-center ${
+                messageType === "success"
                   ? "bg-green-100 text-green-800 border border-green-200"
                   : "bg-red-100 text-red-800 border border-red-200"
-                }`}>
+              }`}>
                 {message}
               </div>
             )}
@@ -155,37 +172,19 @@ const RegisterForm = () => {
                 />
               </div>
 
-              <div className="mb-4">
-                <label className="block text-gray-700 mb-1">Phone Number</label>
-                <input
-                  type="tel"
-                  name="phoneNumber"
-                  value={formData.phoneNumber}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-
-              {userType === "student" && (
+              {userType === "admin" && (
                 <div className="mb-4">
-                  <label className="block text-gray-700 mb-1">Class</label>
-                  <select
-                    name="class"
-                    value={formData.class}
+                  <label className="block text-gray-700 mb-1">Phone Number</label>
+                  <input
+                    type="tel"
+                    name="phoneNumber"
+                    value={formData.phoneNumber}
                     onChange={handleChange}
                     required
                     className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="">Select Class</option>
-                    {[...Array(10)].map((_, i) => (
-                      <option key={i + 1} value={String(i + 1)}>
-                        {i + 1}
-                      </option>
-                    ))}
-                  </select>
+                  />
                 </div>
               )}
-
 
               {userType === "school" && (
                 <>
@@ -209,7 +208,7 @@ const RegisterForm = () => {
                       className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
-                  <div className="mb-4"> {/* ✅ New address field */}
+                  <div className="mb-4">
                     <label className="block text-gray-700 mb-1">School Address</label>
                     <input
                       name="address"
@@ -267,8 +266,9 @@ const RegisterForm = () => {
 
               <button
                 type="submit"
-                className={`w-full py-2 rounded text-white font-medium transition-colors ${isLoading ? "bg-blue-400" : "bg-blue-600 hover:bg-blue-700"
-                  }`}
+                className={`w-full py-2 rounded text-white font-medium transition-colors ${
+                  isLoading ? "bg-blue-400" : "bg-blue-600 hover:bg-blue-700"
+                }`}
                 disabled={isLoading}
               >
                 {isLoading ? "Registering..." : "Register"}

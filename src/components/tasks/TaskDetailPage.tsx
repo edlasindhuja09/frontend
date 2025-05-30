@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import  { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { CheckCircle, Clock, Calendar, User, Tag, MessageSquare, ArrowLeft, Paperclip } from 'lucide-react';
 
@@ -38,12 +38,15 @@ interface TaskDetailProps {
 }
 
 const TaskDetailPage: React.FC<TaskDetailProps> = ({ userType, userId, userName }) => {
+     const backendUrl = import.meta.env.VITE_BACKEND_URL;
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const [task, setTask] = useState<Task | null>(null);
     const [loading, setLoading] = useState(true);
     const [newComment, setNewComment] = useState('');
     const [status, setStatus] = useState<'completed' | 'in-progress' | 'pending'>('pending');
+    
+    
 
     // In TaskDetailPage.tsx, modify the useEffect:
 useEffect(() => {
@@ -51,7 +54,7 @@ useEffect(() => {
     
     const fetchTask = async () => {
         try {
-            const response = await fetch(`http://localhost:5000/api/tasks/${id}`);
+            const response = await fetch(`${backendUrl}/api/tasks/${id}`);
             const data = await response.json();
             setTask(data);
             setStatus(data.status);
@@ -75,7 +78,7 @@ useEffect(() => {
         if (!newComment.trim() || !task) return;
 
         try {
-            const response = await fetch(`http://localhost:5000/api/tasks/${task._id}/comments`, {
+            const response = await fetch(`${backendUrl}/api/tasks/${task._id}/comments`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -107,7 +110,7 @@ useEffect(() => {
         if (!task) return;
 
         try {
-            const response = await fetch(`http://localhost:5000/api/tasks/${task._id}`, {
+            const response = await fetch(`${backendUrl}/api/tasks/${task._id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -249,7 +252,7 @@ useEffect(() => {
                             {task.attachments.map((attachment, index) => (
                                 <a
                                     key={index}
-                                    href={`http://localhost:5000${attachment.url}`}
+                                    href={`${backendUrl}${attachment.url}`}
                                     download={attachment.name}
                                     className="flex items-center gap-2 px-3 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition"
                                 >

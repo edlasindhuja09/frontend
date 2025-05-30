@@ -10,7 +10,10 @@ import ExamResourcesTab from "./exams/components/ExamResourcesTab";
 import ExamFAQsTab from "./exams/components/ExamFAQsTab";
 import { ExamData } from "./exams/types"; // make sure types match your backend shape
 
+
+
 const ExamDetailPage = () => {
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
   const { id } = useParams<{ id: string }>();
   const [exam, setExam] = useState<ExamData | null>(null);
   const [activeTab, setActiveTab] = useState("overview");
@@ -18,7 +21,7 @@ const ExamDetailPage = () => {
   useEffect(() => {
     const fetchExam = async () => {
       try {
-        const response = await fetch(`http://localhost:5000/api/exams/${id}`);
+        const response = await fetch(`${backendUrl}/api/exams/${id}`);
         if (!response.ok) throw new Error("Failed to fetch exam");
         const data = await response.json();
         setExam(data);

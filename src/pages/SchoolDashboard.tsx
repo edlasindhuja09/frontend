@@ -1,9 +1,12 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { ExamData } from "../pages/exams/types"; // adjust path if needed
 import { Search } from "lucide-react"; // lucide-react icon to match ExamPage
 import ExamCard from "../components/exams/ExamCard";
 
+
+
 const SchoolDashboard = () => {
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
   const [exams, setExams] = useState<ExamData[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -13,7 +16,7 @@ const SchoolDashboard = () => {
   useEffect(() => {
     const fetchExams = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/exams");
+        const response = await fetch(`${backendUrl}/api/exams`);
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }

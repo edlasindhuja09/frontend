@@ -5,7 +5,10 @@ import { Search } from 'lucide-react';
 import ExamCard from '../components/exams/ExamCard';
 import { ExamData } from '../pages/exams/types';
 
+
+
 const StudentDashboardPage = () => {
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
   const [searchTerm, setSearchTerm] = useState('');
   const [userName, setUserName] = useState('');
   const [selectedSubject, setSelectedSubject] = useState('');
@@ -48,7 +51,7 @@ const StudentDashboardPage = () => {
     const fetchExams = async () => {
       try {
         setLoading(true);
-        const response = await fetch('http://localhost:5000/api/exams');
+        const response = await fetch(`${backendUrl}/api/exams`);
         if (!response.ok) throw new Error('Network response was not ok');
         const data: ExamData[] = await response.json();
 

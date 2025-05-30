@@ -4,6 +4,7 @@ import { Eye, EyeOff } from "lucide-react";
 import { useAuth } from '../../../src/contexts/AuthContext';
 
 const LoginForm = () => {
+    const backendUrl = import.meta.env.VITE_BACKEND_URL;
   const { login } = useAuth();
   
   const [email, setEmail] = useState("");
@@ -15,6 +16,7 @@ const LoginForm = () => {
   const [message, setMessage] = useState<string | null>(null);
   const [messageType, setMessageType] = useState<"success" | "error" | null>(null);
 
+
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -25,7 +27,7 @@ const LoginForm = () => {
     try {
       console.log("Attempting login with:", { email, password, userType });
       
-      const response = await fetch("http://localhost:5000/api/login", {
+      const response = await fetch(`${backendUrl}/api/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password, userType }),

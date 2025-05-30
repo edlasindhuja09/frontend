@@ -4,9 +4,11 @@ import { useState, useEffect } from "react";
 import { ExamData } from "../../pages/exams/types";
 
 const Hero = () => {
+   const backendUrl = import.meta.env.VITE_BACKEND_URL;
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [featuredExams, setFeaturedExams] = useState<ExamData[]>([]);
   const [currentSlide, setCurrentSlide] = useState(0);
+ 
 
   useEffect(() => {
     // Check login status when component mounts
@@ -25,7 +27,7 @@ const Hero = () => {
     // Fetch all exams and filter featured ones
     const fetchExams = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/exams');
+        const response = await fetch(`${backendUrl}/api/exams`);
         if (!response.ok) {
           throw new Error('Failed to fetch exams');
         }

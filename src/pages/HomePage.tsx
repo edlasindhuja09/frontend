@@ -7,7 +7,12 @@ import { ArrowRight, School, Users, BarChart3, Star, Search } from "lucide-react
 import ExamCard from "../components/exams/ExamCard";
 import { ExamData } from "../pages/exams/types";
 
+
+
+
 const HomePage = () => {
+  
+const backendUrl = import.meta.env.VITE_BACKEND_URL;
   const [exams, setExams] = useState<ExamData[]>([]);
   const [featuredExams, setFeaturedExams] = useState<ExamData[]>([]);
   const [loading, setLoading] = useState(true);
@@ -18,7 +23,7 @@ const HomePage = () => {
   useEffect(() => {
     const fetchExams = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/exams");
+        const response = await fetch(`${backendUrl}/api/exams`);
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }

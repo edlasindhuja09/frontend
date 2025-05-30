@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 
 const UserManagement = () => {
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
   // State management
   const [users, setUsers] = useState<any[]>([])
   const [filteredUsers, setFilteredUsers] = useState<any[]>([])
@@ -34,7 +35,7 @@ const UserManagement = () => {
     try {
       setLoading(true)
       const token = localStorage.getItem("authToken")
-      let url = `http://localhost:5000/admin/users?search=${searchTerm}`
+      let url = `${backendUrl}/admin/users?search=${searchTerm}`
       
       if (activeTab === "students") {
         url += `&userType=student`
@@ -109,7 +110,7 @@ useEffect(() => {
   const fetchSchools = async () => {
     try {
       const token = localStorage.getItem("authToken")
-      const response = await fetch("http://localhost:5000/admin/users?userType=school", {
+      const response = await fetch(`${backendUrl}/admin/users?userType=school`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -192,7 +193,7 @@ useEffect(() => {
 
     try {
       const token = localStorage.getItem("authToken")
-      const response = await fetch("http://localhost:5000/api/register-sales", {
+      const response = await fetch(`${backendUrl}/api/register-sales`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -219,7 +220,7 @@ useEffect(() => {
   const handleActivateDeactivate = async (userId: string, status: string) => {
     try {
       const token = localStorage.getItem("authToken")
-      const response = await fetch("http://localhost:5000/admin/change-status", {
+      const response = await fetch(`${backendUrl}/admin/change-status`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -250,7 +251,7 @@ useEffect(() => {
   const handleDelete = async (userId: string) => {
     try {
       const token = localStorage.getItem("authToken")
-      const response = await fetch(`http://localhost:5000/admin/users/${userId}`, {
+      const response = await fetch(`${backendUrl}/admin/users/${userId}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -293,7 +294,7 @@ useEffect(() => {
 
     try {
       const token = localStorage.getItem("authToken")
-      const response = await fetch(`http://localhost:5000/admin/users/${editingUser._id}`, {
+      const response = await fetch(`${backendUrl}/admin/users/${editingUser._id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

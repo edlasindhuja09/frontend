@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CheckCircle, Clock, Calendar, User, Tag, Paperclip } from 'lucide-react';
+
+
 
 interface Task {
     _id: string;
@@ -34,6 +36,7 @@ interface SalesDashboardProps {
 }
 
 const SalesDashboard: React.FC<SalesDashboardProps> = ({ userId: propUserId }) => {
+    const backendUrl = import.meta.env.VITE_BACKEND_URL;
     const navigate = useNavigate();
     const [userId, setUserId] = useState<string>(propUserId || localStorage.getItem('userId') || '');
     const [tasks, setTasks] = useState<Task[]>([]);
@@ -71,7 +74,7 @@ const SalesDashboard: React.FC<SalesDashboardProps> = ({ userId: propUserId }) =
 
         try {
             setUserLoading(true);
-            const response = await fetch(`http://localhost:5000/api/users/${userId}`);
+            const response = await fetch(`${backendUrl}/api/users/${userId}`);
             
             if (!response.ok) {
                 throw new Error(response.status === 404 
@@ -97,7 +100,7 @@ const SalesDashboard: React.FC<SalesDashboardProps> = ({ userId: propUserId }) =
 
         try {
             setLoading(true);
-            const response = await fetch(`http://localhost:5000/api/tasks?assignedTo=${userId}`);
+            const response = await fetch(`${backendUrl}/api/tasks?assignedTo=${userId}`);
             
             if (!response.ok) {
                 throw new Error('Failed to fetch tasks');
@@ -114,7 +117,7 @@ const SalesDashboard: React.FC<SalesDashboardProps> = ({ userId: propUserId }) =
 
     const handleTaskStatusChange = async (taskId: string, newStatus: Task['status']) => {
         try {
-            const response = await fetch(`http://localhost:5000/api/tasks/${taskId}`, {
+            const response = await fetch(`${backendUrl}/api/tasks/${taskId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -179,7 +182,7 @@ const SalesDashboard: React.FC<SalesDashboardProps> = ({ userId: propUserId }) =
     const handleDownloadAttachment = async (url: string, filename: string) => {
         try {
             if (url.startsWith('/uploads/')) {
-                const response = await fetch(`http://localhost:5000${url}`);
+                const response = await fetch(`${backendUrl}${url}`);
                 const blob = await response.blob();
                 const downloadUrl = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');

@@ -1,6 +1,10 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+
+
 
 const Downloads = () => {
+
+   const backendUrl = import.meta.env.VITE_BACKEND_URL;
   const [filters, setFilters] = useState({
     usertype: "",
     schoolname: ""
@@ -17,7 +21,7 @@ const Downloads = () => {
 
   const fetchFilterOptions = async () => {
     try {
-      const response = await fetch("http://localhost:5000/api/student-filters");
+      const response = await fetch(`${backendUrl}/api/student-filters`);
       if (!response.ok) {
         throw new Error("Failed to fetch filter options");
       }
@@ -43,7 +47,7 @@ const Downloads = () => {
       if (filters.schoolname) params.append("schoolname", filters.schoolname);
 
       const response = await fetch(
-        `http://localhost:5000/api/generate-csv?${params.toString()}`
+        `${backendUrl}/api/generate-csv?${params.toString()}`
       );
 
       if (!response.ok) {

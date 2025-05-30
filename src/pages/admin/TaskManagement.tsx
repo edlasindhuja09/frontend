@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CheckCircle, Clock, Calendar, User, Tag, Plus, X, Edit, Trash2, Paperclip } from 'lucide-react';
 
@@ -32,6 +32,7 @@ interface TasksProps {
 }
 
 const TaskManagement: React.FC<TasksProps> = ({ userType }) => {
+    const backendUrl = import.meta.env.VITE_BACKEND_URL;
     const navigate = useNavigate();
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [tasks, setTasks] = useState<Task[]>([]);
@@ -60,7 +61,7 @@ const TaskManagement: React.FC<TasksProps> = ({ userType }) => {
 
    const fetchTasks = async () => {
     try {
-        const response = await fetch('http://localhost:5000/api/tasks');
+        const response = await fetch(`${backendUrl}/api/tasks`);
         const data = await response.json();
         setTasks(data);
     } catch (error) {
@@ -70,7 +71,7 @@ const TaskManagement: React.FC<TasksProps> = ({ userType }) => {
 
     const fetchSalesMembers = async () => {
         try {
-            const response = await fetch('http://localhost:5000/admin/users?userType=sales');
+            const response = await fetch(`${backendUrl}/admin/users?userType=sales`);
             const data = await response.json();
             if (Array.isArray(data.users)) {
                 setSalesTeamMembers(data.users);
@@ -124,7 +125,7 @@ const TaskManagement: React.FC<TasksProps> = ({ userType }) => {
         });
 
         try {
-            const response = await fetch('http://localhost:5000/api/tasks', {
+            const response = await fetch(`${backendUrl}/api/tasks`, {
                 method: 'POST',
                 body: formData
             });
@@ -164,7 +165,7 @@ const TaskManagement: React.FC<TasksProps> = ({ userType }) => {
         });
 
         try {
-            const response = await fetch(`http://localhost:5000/api/tasks/${editingTask._id}`, {
+            const response = await fetch(`${backendUrl}/api/tasks/${editingTask._id}`, {
                 method: 'PUT',
                 body: formData
             });
@@ -196,7 +197,7 @@ const TaskManagement: React.FC<TasksProps> = ({ userType }) => {
         }
 
         try {
-            const response = await fetch(`http://localhost:5000/api/tasks/${taskId}`, {
+            const response = await fetch(`${backendUrl}/api/tasks/${taskId}`, {
                 method: 'DELETE'
             });
 
@@ -226,7 +227,7 @@ const TaskManagement: React.FC<TasksProps> = ({ userType }) => {
         const newStatus = e.target.value as Task['status'];
         
         try {
-            const response = await fetch(`http://localhost:5000/api/tasks/${taskId}`, {
+            const response = await fetch(`${backendUrl}/api/tasks/${taskId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -248,7 +249,7 @@ const TaskManagement: React.FC<TasksProps> = ({ userType }) => {
     const handleDownloadAttachment = async (url: string, filename: string) => {
         try {
             if (url.startsWith('/uploads/')) {
-                const response = await fetch(`http://localhost:5000${url}`);
+                const response = await fetch(`${backendUrl}${url}`);
                 const blob = await response.blob();
                 const downloadUrl = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');

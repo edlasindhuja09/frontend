@@ -11,6 +11,7 @@ interface UserType {
 interface UserTypeSelectorProps {
   onSelect: (type: string) => void;
   mode: "signup" | "login";
+  allowedTypes?: string[];
 }
 
 const allUserTypes: UserType[] = [

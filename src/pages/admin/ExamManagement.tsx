@@ -1,6 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { DifficultyType, ExamData, ExamSyllabusSection, ExamResource, ExamFAQ } from '../../pages/exams/types.ts';
 import ExamCard from '../../components/exams/ExamCard.tsx';
+
+
+
+
 
 const AlertBox: React.FC<{ message: string; type: 'success' | 'error' | 'question'; onConfirm?: (answer: boolean) => void }> = ({ message, type, onConfirm }) => {
     const baseStyle = 'px-4 py-3 rounded-lg shadow-md mb-4 w-full max-w-md mx-auto';
@@ -24,6 +28,7 @@ const AlertBox: React.FC<{ message: string; type: 'success' | 'error' | 'questio
 };
 
 const ExamManagement: React.FC = () => {
+    const backendUrl = import.meta.env.VITE_BACKEND_URL;
     const [showForm, setShowForm] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [exams, setExams] = useState<ExamData[]>([]);
@@ -66,7 +71,7 @@ const ExamManagement: React.FC = () => {
     const fetchExams = async () => {
         setIsLoading(true);
         try {
-            const response = await fetch('http://localhost:5000/api/exams');
+            const response = await fetch(`${backendUrl}/api/exams`);
             if (!response.ok) {
                 throw new Error('Failed to fetch exams');
             }
@@ -128,7 +133,7 @@ const ExamManagement: React.FC = () => {
     const handleStatusToggle = async (examId: string) => {
         try {
             setIsLoading(true);
-            const response = await fetch(`http://localhost:5000/api/exams/${examId}/status`, {
+            const response = await fetch(`${backendUrl}/api/exams/${examId}/status`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
             });
@@ -158,7 +163,7 @@ const ExamManagement: React.FC = () => {
     const handleSaveExam = async () => {
         try {
             setIsLoading(true);
-            const response = await fetch('http://localhost:5000/api/exams/create', {
+            const response = await fetch(`${backendUrl}/api/exams/create`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -192,7 +197,7 @@ const ExamManagement: React.FC = () => {
             if (confirm) {
                 try {
                     setIsLoading(true);
-                    const response = await fetch(`http://localhost:5000/api/exams/${examId}`, { 
+                    const response = await fetch(`${backendUrl}/api/exams/${examId}`, { 
                         method: 'DELETE' 
                     });
                     
@@ -231,7 +236,7 @@ const ExamManagement: React.FC = () => {
 
         try {
             setIsLoading(true);
-            const response = await fetch(`http://localhost:5000/api/exams/${currentExamId}`, {
+            const response = await fetch(`${backendUrl}/api/exams/${currentExamId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
