@@ -1,10 +1,7 @@
 import { useEffect, useState } from "react";
 
-
-
 const Downloads = () => {
-
-   const backendUrl = import.meta.env.VITE_BACKEND_URL;
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
   const [filters, setFilters] = useState({
     usertype: "",
     schoolname: ""
@@ -95,70 +92,80 @@ const Downloads = () => {
   }, []);
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen" style={{ marginLeft: "100px", marginRight: "100px" }}>
-      <h1 className="text-2xl font-bold mb-4">Generate Filtered Export</h1>
+    <div className="p-4 sm:p-6 lg:p-8 bg-gray-50 min-h-screen">
+      <div className="max-w-6xl mx-auto">
+        <h1 className="text-xl sm:text-2xl font-bold mb-4">Generate Filtered Export</h1>
 
-      {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded mb-4">
-          {error}
-        </div>
-      )}
+        {error && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded mb-4">
+            {error}
+          </div>
+        )}
 
-      {successMessage && (
-        <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-2 rounded mb-4">
-          {successMessage}
-        </div>
-      )}
+        {successMessage && (
+          <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-2 rounded mb-4">
+            {successMessage}
+          </div>
+        )}
 
-      <div className="bg-white p-4 rounded shadow mb-6 grid gap-4 md:grid-cols-2">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            User Type
-          </label>
-          <select
-            value={filters.usertype}
-            onChange={(e) =>
-              setFilters({ ...filters, usertype: e.target.value })
-            }
-            className="w-full p-2 border rounded"
-          >
-            <option value="">Select User Type</option>
-            {filterOptions.userTypes.map((type) => (
-              <option key={type} value={type}>
-                {type.charAt(0).toUpperCase() + type.slice(1)}
-              </option>
-            ))}
-          </select>
+        <div className="bg-white p-4 sm:p-6 rounded shadow mb-6 grid gap-4 md:grid-cols-2">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              User Type
+            </label>
+            <select
+              value={filters.usertype}
+              onChange={(e) =>
+                setFilters({ ...filters, usertype: e.target.value })
+              }
+              className="w-full p-2 border rounded"
+            >
+              <option value="">Select User Type</option>
+              {filterOptions.userTypes.map((type) => (
+                <option key={type} value={type}>
+                  {type.charAt(0).toUpperCase() + type.slice(1)}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              School Name
+            </label>
+            <select
+              value={filters.schoolname}
+              onChange={(e) =>
+                setFilters({ ...filters, schoolname: e.target.value })
+              }
+              className="w-full p-2 border rounded"
+            >
+              <option value="">Select School</option>
+              {filterOptions.schools.map((school) => (
+                <option key={school} value={school}>
+                  {school}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            School Name
-          </label>
-          <select
-            value={filters.schoolname}
-            onChange={(e) =>
-              setFilters({ ...filters, schoolname: e.target.value })
-            }
-            className="w-full p-2 border rounded"
-          >
-            <option value="">Select School</option>
-            {filterOptions.schools.map((school) => (
-              <option key={school} value={school}>
-                {school}
-              </option>
-            ))}
-          </select>
-        </div>
+        <button
+          onClick={generateAndDownloadExport}
+          disabled={isGenerating || (!filters.usertype && !filters.schoolname)}
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:bg-gray-400 transition-colors"
+        >
+          {isGenerating ? (
+            <span className="flex items-center justify-center">
+              <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Generating...
+            </span>
+          ) : "Generate and Download"}
+        </button>
       </div>
-
-      <button
-        onClick={generateAndDownloadExport}
-        disabled={isGenerating || (!filters.usertype && !filters.schoolname)}
-        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:bg-gray-400"
-      >
-        {isGenerating ? "Generating..." : "Generate and Download"}
-      </button>
     </div>
   );
 };
