@@ -60,6 +60,39 @@ const AdminDashboard = () => {
         </div>
       </aside>
 
+      {/* Main Content - full width on mobile, shifted on desktop */}
+      <main className="lg:ml-64 p-4 sm:p-6 lg:p-8">
+        <h1 className="text-2xl sm:text-3xl font-bold text-education-dark mb-4 sm:mb-6">
+          Welcome to the Admin Dashboard
+        </h1>
+        <p className="text-gray-600 mb-6 text-sm sm:text-base">
+          Use the navigation menu to manage users, exams, mock tests, and site content.
+        </p>
+
+        {/* Quick Actions / Overview Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+          {navItems.map((item) => (
+            <Link
+              key={item.to}
+              to={item.to}
+              className="bg-white p-4 sm:p-6 rounded-lg shadow hover:shadow-lg transition block"
+            >
+              <div className="flex items-center text-education-blue mb-3">
+                {item.icon}
+                <h3 className="font-semibold text-base sm:text-lg ml-2">{item.label}</h3>
+              </div>
+              <p className="text-gray-600 text-xs sm:text-sm">
+                {item.label === "User Management" && "Manage student, parent, and school profiles."}
+                {item.label === "Exam Management" && "Create and update exams. Enable or disable them as needed."}
+                {item.label === "Content Management" && "Manage homepage banners, blog posts, FAQs, and more."}
+                {item.label === "Task Management" && "Create, assign and track tasks for your team members."}
+                {item.label === "Downloads" && "Download student data CSV files here."}
+              </p>
+            </Link>
+          ))}
+        </div>
+      </main>
+
       {/* Mobile sidebar overlay - only shown when sidebarOpen is true on mobile */}
       {sidebarOpen && (
         <div 
@@ -95,84 +128,6 @@ const AdminDashboard = () => {
           </nav>
         </div>
       </aside>
-
-      {/* Main Content */}
-      <main className={`p-4 sm:p-6 lg:p-8 ${sidebarOpen ? 'ml-64' : ''} lg:ml-64`}>
-        <h1 className="text-2xl sm:text-3xl font-bold text-education-dark mb-4 sm:mb-6">
-          Welcome to the Admin Dashboard
-        </h1>
-        <p className="text-gray-600 mb-6 text-sm sm:text-base">
-          Use the sidebar to manage users, exams, mock tests, and site content.
-        </p>
-
-        {/* Quick Actions / Overview Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-          <Link
-            to="/admin/users"
-            className="bg-white p-4 sm:p-6 rounded-lg shadow hover:shadow-lg transition block"
-          >
-            <div className="flex items-center text-education-blue mb-3">
-              <Users className="w-5 h-5 sm:w-6 sm:h-6 mr-2" />
-              <h3 className="font-semibold text-base sm:text-lg">User Management</h3>
-            </div>
-            <p className="text-gray-600 text-xs sm:text-sm">
-              Manage student, parent, and school profiles.
-            </p>
-          </Link>
-
-          <Link
-            to="/admin/exams"
-            className="bg-white p-4 sm:p-6 rounded-lg shadow hover:shadow-lg transition block"
-          >
-            <div className="flex items-center text-education-blue mb-3">
-              <BookOpen className="w-5 h-5 sm:w-6 sm:h-6 mr-2" />
-              <h3 className="font-semibold text-base sm:text-lg">Exam Management</h3>
-            </div>
-            <p className="text-gray-600 text-xs sm:text-sm">
-              Create and update exams. Enable or disable them as needed.
-            </p>
-          </Link>
-
-          <Link
-            to="/admin/content"
-            className="bg-white p-4 sm:p-6 rounded-lg shadow hover:shadow-lg transition block"
-          >
-            <div className="flex items-center text-education-blue mb-3">
-              <LayoutDashboard className="w-5 h-5 sm:w-6 sm:h-6 mr-2" />
-              <h3 className="font-semibold text-base sm:text-lg">Content Management</h3>
-            </div>
-            <p className="text-gray-600 text-xs sm:text-sm">
-              Manage homepage banners, blog posts, FAQs, and more.
-            </p>
-          </Link>
-
-          <Link
-            to="/admin/tasks"
-            className="bg-white p-4 sm:p-6 rounded-lg shadow hover:shadow-lg transition block"
-          >
-            <div className="flex items-center text-education-blue mb-3">
-              <ClipboardList className="w-5 h-5 sm:w-6 sm:h-6 mr-2" />
-              <h3 className="font-semibold text-base sm:text-lg">Task Management</h3>
-            </div>
-            <p className="text-gray-600 text-xs sm:text-sm">
-              Create, assign and track tasks for your team members.
-            </p>
-          </Link>
-
-          <Link
-            to="/admin/downloads"
-            className="bg-white p-4 sm:p-6 rounded-lg shadow hover:shadow-lg transition block"
-          >
-            <div className="flex items-center text-education-blue mb-3">
-              <Download className="w-5 h-5 sm:w-6 sm:h-6 mr-2" />
-              <h3 className="font-semibold text-base sm:text-lg">Downloads</h3>
-            </div>
-            <p className="text-gray-600 text-xs sm:text-sm">
-              Download student data CSV files here.
-            </p>
-          </Link>
-        </div>
-      </main>
     </div>
   );
 };
