@@ -25,10 +25,8 @@ const AdminDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Mobile header - only shown on mobile */}
-      <header className="lg:hidden bg-white shadow-sm p-4 flex items-center justify-center sticky top-0 z-40">
-        <h2 className="text-xl font-bold text-education-blue">Admin Panel</h2>
-      </header>
+  
+      
 
       {/* Sidebar - hidden on mobile, shown on desktop */}
       <aside className="hidden lg:block fixed top-0 left-0 z-30 h-screen bg-white shadow-md border-r w-64">
