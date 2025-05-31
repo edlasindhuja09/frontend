@@ -336,7 +336,7 @@ const UserManagement = () => {
   }
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="flex min-h-screen bg-gray-50 w-full overflow-x-hidden">
       {/* Mobile menu button */}
       <button
         onClick={() => setShowMobileMenu(!showMobileMenu)}
@@ -521,7 +521,7 @@ const UserManagement = () => {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 px-4 sm:px-6 md:px-8 lg:px-16 xl:px-24 py-8 md:py-12">
+      <div className="flex-1 px-4 sm:px-6 md:px-8 lg:px-16 xl:px-24 py-8 md:py-12 w-full max-w-full">
         {/* Success Notification */}
         {showSuccess && (
           <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50">
@@ -727,7 +727,7 @@ const UserManagement = () => {
         )}
 
         {/* Users Table */}
-        <div className="overflow-x-auto bg-white shadow rounded-lg">
+        <div className="overflow-x-auto bg-white shadow rounded-lg w-full">
           <div className="min-w-full overflow-hidden overflow-x-auto">
             {filteredUsers.length === 0 ? (
               <div className="p-8 text-center text-gray-500">
