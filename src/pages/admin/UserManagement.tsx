@@ -3,6 +3,19 @@
 import { useState, useEffect } from "react"
 
 const UserManagement = () => {
+
+
+   useEffect(() => {
+    const meta = document.createElement('meta');
+    meta.name = 'viewport';
+    meta.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no';
+    document.head.appendChild(meta);
+    
+    return () => {
+      document.head.removeChild(meta);
+    };
+  }, []);
+  
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
   // State management
   const [users, setUsers] = useState<any[]>([])
