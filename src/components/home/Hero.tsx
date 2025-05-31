@@ -2,36 +2,21 @@ import { Link } from "react-router-dom";
 import { ArrowRight, BookOpen, Award, Users } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { ExamData } from "../../pages/exams/types";
+import { useAuth } from "../../context/AuthContext";
 
 const Hero = () => {
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const { isLoggedIn } = useAuth();
   const [featuredExams, setFeaturedExams] = useState<ExamData[]>([]);
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const heroRef = useRef(null);
-
-  // Lazy fetch when visible
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const entry = entries[0];
-        if (entry.isIntersecting) {
-          fetchExams();
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.1 }
-    );
-
-    if (heroRef.current) {
-      observer.observe(heroRef.current);
-    }
-
-    return () => observer.disconnect();
-  }, []);
+  const [loading, setLoading] = useState(false);
+  const heroRef = useRef<HTMLDivElement>(null);
+  const slideInterval = useRef<NodeJS.Timeout>();
 
   const fetchExams = async () => {
+    if (loading || featuredExams.length > 0) return;
+    
+    setLoading(true);
     try {
       const response = await fetch(`${backendUrl}/api/exams`);
       if (!response.ok) throw new Error("Failed to fetch exams");
@@ -48,32 +33,52 @@ const Hero = () => {
     }
   };
 
-  // Check login status once
   useEffect(() => {
-    const userToken = localStorage.getItem("userToken");
-    setIsLoggedIn(!!userToken);
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0];
+        if (entry.isIntersecting) {
+          fetchExams();
+        }
+      },
+      { threshold: 0.1 }
+    );
 
-    const handleStorageChange = () => {
-      const token = localStorage.getItem("userToken");
-      setIsLoggedIn(!!token);
+    if (heroRef.current) {
+      observer.observe(heroRef.current);
+    }
+
+    return () => {
+      observer.disconnect();
+      if (slideInterval.current) clearInterval(slideInterval.current);
     };
-
-    window.addEventListener("storage", handleStorageChange);
-    return () => window.removeEventListener("storage", handleStorageChange);
   }, []);
 
-  // Auto-slide every 5s
   useEffect(() => {
     if (featuredExams.length <= 1) return;
 
-    const interval = setInterval(() => {
+    if (slideInterval.current) clearInterval(slideInterval.current);
+    
+    slideInterval.current = setInterval(() => {
       setCurrentSlide((prev) =>
         prev === featuredExams.length - 1 ? 0 : prev + 1
       );
     }, 5000);
 
-    return () => clearInterval(interval);
+    return () => {
+      if (slideInterval.current) clearInterval(slideInterval.current);
+    };
   }, [featuredExams.length]);
+
+  const goToSlide = (index: number) => {
+    setCurrentSlide(index);
+    if (slideInterval.current) clearInterval(slideInterval.current);
+    slideInterval.current = setInterval(() => {
+      setCurrentSlide((prev) =>
+        prev === featuredExams.length - 1 ? 0 : prev + 1
+      );
+    }, 5000);
+  };
 
   return (
     <div
@@ -96,14 +101,14 @@ const Hero = () => {
               {!isLoggedIn && (
                 <Link
                   to="/register"
-                  className="btn-primary text-center py-3 px-8 text-lg"
+                  className="btn-primary text-center py-3 px-8 text-lg hover:scale-105 transition-transform"
                 >
                   Get Started
                 </Link>
               )}
               <Link
                 to="/exams"
-                className="btn-outline text-center py-3 px-8 text-lg flex items-center justify-center"
+                className="btn-outline text-center py-3 px-8 text-lg flex items-center justify-center hover:scale-105 transition-transform"
               >
                 Explore Exams <ArrowRight size={18} className="ml-2" />
               </Link>
@@ -112,19 +117,29 @@ const Hero = () => {
 
           <div className="lg:w-5/12 lg:pl-8 relative">
             {loading ? (
-              // Simple skeleton loader
-              <div className="bg-white rounded-xl shadow-xl overflow-hidden animate-pulse h-96" />
+              <div className="flex items-center justify-center h-96 bg-white rounded-xl shadow-xl">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-education-blue"></div>
+                <span className="ml-3 text-gray-600">Loading featured exams...</span>
+              </div>
             ) : featuredExams.length > 0 ? (
               <div className="relative">
-                <div className="bg-white rounded-xl shadow-xl overflow-hidden">
-                  <img
-                    src={
-                      featuredExams[currentSlide]?.image ||
-                      "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80"
-                    }
-                    alt={featuredExams[currentSlide]?.title}
-                    className="w-full h-64 object-cover object-center"
-                  />
+                <div className="bg-white rounded-xl shadow-xl overflow-hidden transition-all duration-300 hover:shadow-2xl">
+                  <div className="relative h-64 overflow-hidden">
+                    {featuredExams.map((exam, index) => (
+                      <img
+                        key={exam.id}
+                        src={
+                          exam.image ||
+                          "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80"
+                        }
+                        alt={exam.title}
+                        className={`absolute top-0 left-0 w-full h-full object-cover transition-opacity duration-500 ${
+                          currentSlide === index ? 'opacity-100' : 'opacity-0'
+                        }`}
+                        loading={index === 0 ? 'eager' : 'lazy'}
+                      />
+                    ))}
+                  </div>
                   <div className="p-6">
                     <div className="flex justify-between items-center mb-4">
                       <span className="bg-blue-100 text-education-blue text-xs font-semibold px-3 py-1 rounded-full">
@@ -149,36 +164,41 @@ const Hero = () => {
                     </p>
                     <Link
                       to={`/exams/${featuredExams[currentSlide]?.id}`}
-                      className="text-education-blue font-medium hover:underline flex items-center"
+                      className="text-education-blue font-medium hover:underline flex items-center group"
                     >
-                      Learn More <ArrowRight size={16} className="ml-1" />
+                      Learn More{" "}
+                      <ArrowRight 
+                        size={16} 
+                        className="ml-1 group-hover:translate-x-1 transition-transform" 
+                      />
                     </Link>
                   </div>
                 </div>
 
-                {/* Indicators */}
                 {featuredExams.length > 1 && (
                   <div className="flex justify-center mt-4 space-x-2">
                     {featuredExams.map((_, index) => (
-                      <div
+                      <button
                         key={index}
-                        className={`w-2 h-2 rounded-full ${
+                        onClick={() => goToSlide(index)}
+                        className={`w-3 h-3 rounded-full transition-all ${
                           currentSlide === index
-                            ? "bg-education-blue"
-                            : "bg-gray-300"
+                            ? "bg-education-blue w-6"
+                            : "bg-gray-300 hover:bg-gray-400"
                         }`}
-                        aria-label={`Slide ${index + 1}`}
+                        aria-label={`Go to slide ${index + 1}`}
                       />
                     ))}
                   </div>
                 )}
               </div>
             ) : (
-              <div className="bg-white rounded-xl shadow-xl overflow-hidden">
+              <div className="bg-white rounded-xl shadow-xl overflow-hidden transition-all duration-300 hover:shadow-2xl">
                 <img
                   src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80"
                   alt="Default exam image"
                   className="w-full h-64 object-cover object-center"
+                  loading="eager"
                 />
                 <div className="p-6">
                   <div className="flex justify-between items-center mb-4">
@@ -193,9 +213,13 @@ const Hero = () => {
                   </p>
                   <Link
                     to="/exams"
-                    className="text-education-blue font-medium hover:underline flex items-center"
+                    className="text-education-blue font-medium hover:underline flex items-center group"
                   >
-                    Browse Exams <ArrowRight size={16} className="ml-1" />
+                    Browse Exams{" "}
+                    <ArrowRight 
+                      size={16} 
+                      className="ml-1 group-hover:translate-x-1 transition-transform" 
+                    />
                   </Link>
                 </div>
               </div>
@@ -205,7 +229,7 @@ const Hero = () => {
 
         {/* Stats Section */}
         <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="bg-white p-6 rounded-lg shadow-md text-center">
+          <div className="bg-white p-6 rounded-lg shadow-md text-center transition-transform hover:scale-105">
             <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
               <BookOpen size={32} className="text-education-blue" />
             </div>
@@ -215,7 +239,7 @@ const Hero = () => {
             <p className="text-gray-600">Mock Tests Available</p>
           </div>
 
-          <div className="bg-white p-6 rounded-lg shadow-md text-center">
+          <div className="bg-white p-6 rounded-lg shadow-md text-center transition-transform hover:scale-105">
             <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
               <Users size={32} className="text-education-blue" />
             </div>
@@ -225,7 +249,7 @@ const Hero = () => {
             <p className="text-gray-600">Students Enrolled</p>
           </div>
 
-          <div className="bg-white p-6 rounded-lg shadow-md text-center">
+          <div className="bg-white p-6 rounded-lg shadow-md text-center transition-transform hover:scale-105">
             <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
               <Award size={32} className="text-education-blue" />
             </div>
