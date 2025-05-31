@@ -98,7 +98,7 @@ const AdminDashboard = () => {
         className={`lg:hidden fixed top-0 left-0 z-30 h-screen bg-white shadow-md border-r w-64 transform transition-transform duration-300 ease-in-out
         ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}`}
       >
-        <div className="p-4 h-full">
+       <div className="p-4 h-full" style={{ marginTop: "90px" }}>
           <h2 className="text-2xl font-bold text-education-blue mb-8 text-center">Admin Panel</h2>
           <nav className="space-y-2">
             {navItems.map((item) => (
