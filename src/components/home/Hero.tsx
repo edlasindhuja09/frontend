@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { ArrowRight, BookOpen, Award, Users } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { ExamData } from "../../pages/exams/types";
-import { useAuth } from "../../context/AuthContext";
+import { useAuth } from "../../../src/contexts/AuthContext";
 
 const Hero = () => {
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
