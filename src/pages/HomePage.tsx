@@ -7,12 +7,8 @@ import { ArrowRight, School, Users, BarChart3, Star, Search } from "lucide-react
 import ExamCard from "../components/exams/ExamCard";
 import { ExamData } from "../pages/exams/types";
 
-
-
-
 const HomePage = () => {
-  
-const backendUrl = import.meta.env.VITE_BACKEND_URL;
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
   const [exams, setExams] = useState<ExamData[]>([]);
   const [featuredExams, setFeaturedExams] = useState<ExamData[]>([]);
   const [loading, setLoading] = useState(true);
@@ -84,23 +80,23 @@ const backendUrl = import.meta.env.VITE_BACKEND_URL;
   ];
 
   return (
-    <div>
+    <div className="overflow-x-hidden">
       <Hero />
       <Features />
       
       {/* Featured Exams Section */}
-      <section className="py-16 bg-gray-50">
-        <div className="education-container">
-          <div className="flex justify-between items-center mb-10">
-            <h2 className="text-3xl font-bold text-education-dark">Featured Exams</h2>
+      <section className="py-12 md:py-16 bg-gray-50 px-4 sm:px-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 sm:mb-10 gap-4">
+            <h2 className="text-2xl sm:text-3xl font-bold text-education-dark">Featured Exams</h2>
             <Link to="/exams" className="text-education-blue hover:text-blue-700 flex items-center font-medium">
               View All <ArrowRight size={18} className="ml-1" />
             </Link>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {loading ? (
-              <div className="text-center py-20 text-gray-500">Loading exams...</div>
+              <div className="text-center py-12 sm:py-20 text-gray-500 col-span-full">Loading exams...</div>
             ) : (
               <>
                 {featuredExams.length > 0 ? (
@@ -115,7 +111,7 @@ const backendUrl = import.meta.env.VITE_BACKEND_URL;
                     />
                   ))
                 ) : (
-                  <div className="text-center py-16 col-span-3">
+                  <div className="text-center py-12 sm:py-16 col-span-full">
                     <Search size={48} className="mx-auto text-gray-400 mb-4" />
                     <h3 className="text-xl font-medium text-education-dark mb-2">No featured exams available</h3>
                     <p className="text-gray-600">Check back later for featured exams or browse all exams.</p>
@@ -134,20 +130,20 @@ const backendUrl = import.meta.env.VITE_BACKEND_URL;
       </section>
 
       {/* All Exams Section */}
-      <section className="py-16 bg-white">
-        <div className="education-container">
-          <div className="flex justify-between items-center mb-10">
-            <h2 className="text-3xl font-bold text-education-dark">All Exams</h2>
-            <div className="flex items-center space-x-4">
+      <section className="py-12 md:py-16 bg-white px-4 sm:px-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-8 sm:mb-10 gap-4">
+            <h2 className="text-2xl sm:text-3xl font-bold text-education-dark">All Exams</h2>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full lg:w-auto">
               <input
                 type="text"
                 placeholder="Search exams..."
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 w-full sm:w-auto"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
               <select
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 w-full sm:w-auto"
                 value={selectedSubject}
                 onChange={(e) => setSelectedSubject(e.target.value)}
               >
@@ -159,7 +155,7 @@ const backendUrl = import.meta.env.VITE_BACKEND_URL;
                 ))}
               </select>
               <select
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 w-full sm:w-auto"
                 value={selectedDifficulty}
                 onChange={(e) => setSelectedDifficulty(e.target.value)}
               >
@@ -171,9 +167,9 @@ const backendUrl = import.meta.env.VITE_BACKEND_URL;
             </div>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {loading ? (
-              <div className="text-center py-20 text-gray-500 col-span-3">Loading exams...</div>
+              <div className="text-center py-12 sm:py-20 text-gray-500 col-span-full">Loading exams...</div>
             ) : (
               <>
                 {filteredExams.length > 0 ? (
@@ -188,7 +184,7 @@ const backendUrl = import.meta.env.VITE_BACKEND_URL;
                     />
                   ))
                 ) : (
-                  <div className="text-center py-16 col-span-3">
+                  <div className="text-center py-12 sm:py-16 col-span-full">
                     <Search size={48} className="mx-auto text-gray-400 mb-4" />
                     <h3 className="text-xl font-medium text-education-dark mb-2">No exams found</h3>
                     <p className="text-gray-600">Try adjusting your search or filter criteria to find what you're looking for.</p>
@@ -201,64 +197,64 @@ const backendUrl = import.meta.env.VITE_BACKEND_URL;
       </section>
 
       {/* For Schools Section */}
-      <section className="py-16 bg-white">
-        <div className="education-container">
-          <div className="text-center mb-10">
-            <h2 className="text-3xl font-bold text-education-dark">For Schools</h2>
-            <p className="mt-4 text-lg text-gray-600 max-w-2xl mx-auto">
+      <section className="py-12 md:py-16 bg-white px-4 sm:px-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-8 sm:mb-10">
+            <h2 className="text-2xl sm:text-3xl font-bold text-education-dark">For Schools</h2>
+            <p className="mt-3 sm:mt-4 text-base sm:text-lg text-gray-600 max-w-2xl mx-auto">
               Partner with us to provide your students with comprehensive exam preparation.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {/* Card 1 - School Registration */}
-            <div className="bg-gray-50 p-6 rounded-lg shadow-md transition hover:shadow-lg">
-              <div className="flex items-center mb-4 text-education-blue">
-                <School size={32} className="mr-3" />
-                <h3 className="text-xl font-semibold">School Registration</h3>
+            <div className="bg-gray-50 p-5 sm:p-6 rounded-lg shadow-md transition hover:shadow-lg">
+              <div className="flex items-center mb-3 sm:mb-4 text-education-blue">
+                <School size={28} className="mr-2 sm:mr-3" />
+                <h3 className="text-lg sm:text-xl font-semibold">School Registration</h3>
               </div>
-              <p className="text-gray-700 mb-4">
+              <p className="text-gray-700 mb-3 sm:mb-4 text-sm sm:text-base">
                 Register your school as a partner and gain access to our comprehensive exam preparation platform.
               </p>
-              <Link to="/school-registration" className="text-education-blue hover:text-blue-700 flex items-center font-medium">
+              <Link to="/school-registration" className="text-education-blue hover:text-blue-700 flex items-center font-medium text-sm sm:text-base">
                 Learn More <ArrowRight size={18} className="ml-1" />
               </Link>
             </div>
 
             {/* Card 2 - Bulk Registration */}
-            <div className="bg-gray-50 p-6 rounded-lg shadow-md transition hover:shadow-lg">
-              <div className="flex items-center mb-4 text-education-blue">
-                <Users size={32} className="mr-3" />
-                <h3 className="text-xl font-semibold">Bulk Registration</h3>
+            <div className="bg-gray-50 p-5 sm:p-6 rounded-lg shadow-md transition hover:shadow-lg">
+              <div className="flex items-center mb-3 sm:mb-4 text-education-blue">
+                <Users size={28} className="mr-2 sm:mr-3" />
+                <h3 className="text-lg sm:text-xl font-semibold">Bulk Registration</h3>
               </div>
-              <p className="text-gray-700 mb-4">
+              <p className="text-gray-700 mb-3 sm:mb-4 text-sm sm:text-base">
                 Register multiple students at once and manage their accounts from a central dashboard.
               </p>
-              <Link to="/bulk-registration" className="text-education-blue hover:text-blue-700 flex items-center font-medium">
+              <Link to="/bulk-registration" className="text-education-blue hover:text-blue-700 flex items-center font-medium text-sm sm:text-base">
                 Learn More <ArrowRight size={18} className="ml-1" />
               </Link>
             </div>
 
             {/* Card 3 - Performance Tracking */}
-            <div className="bg-gray-50 p-6 rounded-lg shadow-md transition hover:shadow-lg">
-              <div className="flex items-center mb-4 text-education-blue">
-                <BarChart3 size={32} className="mr-3" />
-                <h3 className="text-xl font-semibold">Performance Tracking</h3>
+            <div className="bg-gray-50 p-5 sm:p-6 rounded-lg shadow-md transition hover:shadow-lg">
+              <div className="flex items-center mb-3 sm:mb-4 text-education-blue">
+                <BarChart3 size={28} className="mr-2 sm:mr-3" />
+                <h3 className="text-lg sm:text-xl font-semibold">Performance Tracking</h3>
               </div>
-              <p className="text-gray-700 mb-4">
+              <p className="text-gray-700 mb-3 sm:mb-4 text-sm sm:text-base">
                 Monitor your students' progress and performance with detailed analytics and reports.
               </p>
-              <Link to="/performance-tracking" className="text-education-blue hover:text-blue-700 flex items-center font-medium">
+              <Link to="/performance-tracking" className="text-education-blue hover:text-blue-700 flex items-center font-medium text-sm sm:text-base">
                 Learn More <ArrowRight size={18} className="ml-1" />
               </Link>
             </div>
           </div>
 
           {/* CTA Button */}
-          <div className="text-center mt-12">
+          <div className="text-center mt-10 sm:mt-12">
             <Link
               to="/signup"
-              className="bg-education-blue text-white hover:bg-blue-700 font-semibold py-3 px-8 rounded-md transition-all shadow-md"
+              className="inline-block bg-education-blue text-white hover:bg-blue-700 font-semibold py-2 sm:py-3 px-6 sm:px-8 rounded-md transition-all shadow-md text-sm sm:text-base"
             >
               Become a Partner School
             </Link>
@@ -267,22 +263,22 @@ const backendUrl = import.meta.env.VITE_BACKEND_URL;
       </section>
 
       {/* Become an Olympiad Coordinator Section */}
-      <section className="py-16 bg-white">
-        <div className="education-container text-center bg-education-blue text-white rounded-[50px] border border-white py-12 px-6">
-          <h2 className="text-3xl md:text-4xl font-bold mb-6">Become an Olympiad Coordinator</h2>
-          <p className="text-lg mb-8 max-w-2xl mx-auto">
+      <section className="py-12 md:py-16 bg-white px-4 sm:px-6">
+        <div className="max-w-7xl mx-auto text-center bg-education-blue text-white rounded-3xl sm:rounded-[50px] border border-white py-8 sm:py-12 px-4 sm:px-6">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 sm:mb-6">Become an Olympiad Coordinator</h2>
+          <p className="text-sm sm:text-base md:text-lg mb-6 sm:mb-8 max-w-2xl mx-auto">
             Join our team of dedicated educators and help students excel in competitive exams. As a coordinator, you'll organize exams, provide guidance, and connect schools with our platform.
           </p>
-          <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
+          <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4">
             <Link
               to="/coordinator-application"
-              className="bg-white text-education-blue hover:bg-gray-100 font-semibold py-3 px-8 rounded-md transition-all shadow-md"
+              className="bg-white text-education-blue hover:bg-gray-100 font-semibold py-2 sm:py-3 px-4 sm:px-8 rounded-md transition-all shadow-md text-sm sm:text-base"
             >
               Apply Now
             </Link>
             <Link
               to="/contact"
-              className="border border-white text-white hover:bg-blue-700 font-semibold py-3 px-8 rounded-md transition-all"
+              className="border border-white text-white hover:bg-blue-700 font-semibold py-2 sm:py-3 px-4 sm:px-8 rounded-md transition-all text-sm sm:text-base"
             >
               Contact Us
             </Link>
@@ -291,16 +287,16 @@ const backendUrl = import.meta.env.VITE_BACKEND_URL;
       </section>
 
       {/* Testimonials Section */}
-      <section className="py-16 bg-white">
-        <div className="education-container">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-education-dark mb-4">What Our Users Say</h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+      <section className="py-12 md:py-16 bg-white px-4 sm:px-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-8 sm:mb-12">
+            <h2 className="text-2xl sm:text-3xl font-bold text-education-dark mb-3 sm:mb-4">What Our Users Say</h2>
+            <p className="text-sm sm:text-base md:text-lg text-gray-600 max-w-2xl mx-auto">
               Hear from students, parents, and schools who have experienced success with EduVerse.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {testimonials.map((testimonial, index) => (
               <TestimonialCard key={index} {...testimonial} />
             ))}
