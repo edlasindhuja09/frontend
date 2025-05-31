@@ -27,10 +27,9 @@ const UserManagement = () => {
   const [activeTab, setActiveTab] = useState("all")
   const [selectedSchool, setSelectedSchool] = useState<string>("")
   const [schools, setSchools] = useState<any[]>([])
+  const [showMobileMenu, setShowMobileMenu] = useState(false)
 
   // Fetch users based on filters
-  // Update the fetchUsers function
-// Fetch users based on filters
   const fetchUsers = async () => {
     try {
       setLoading(true)
@@ -81,31 +80,33 @@ const UserManagement = () => {
 
     return () => clearTimeout(timer)
   }, [searchTerm, selectedRole, activeTab])
-// Update the useEffect for filtering
-useEffect(() => {
-  if (activeTab === "students") {
-    if (selectedSchool) {
-      const filtered = users.filter((user) => {
-        return user.userType === "student" && 
-               (user.schoolId === selectedSchool || 
-                user.schoolName?.toLowerCase() === schools.find(s => s._id === selectedSchool)?.schoolName?.toLowerCase());
-      });
-      setFilteredUsers(filtered);
+
+  // Update the useEffect for filtering
+  useEffect(() => {
+    if (activeTab === "students") {
+      if (selectedSchool) {
+        const filtered = users.filter((user) => {
+          return user.userType === "student" && 
+                 (user.schoolId === selectedSchool || 
+                  user.schoolName?.toLowerCase() === schools.find(s => s._id === selectedSchool)?.schoolName?.toLowerCase());
+        });
+        setFilteredUsers(filtered);
+      } else {
+        setFilteredUsers(users.filter(user => user.userType === "student"));
+      }
+    } else if (activeTab === "sales") {
+      setFilteredUsers(users.filter(user => user.userType === "sales"));
+    } else if (activeTab !== "all") {
+      const typeMap: Record<string, string> = {
+        schools: "school",
+        admins: "admin"
+      };
+      setFilteredUsers(users.filter(user => user.userType === typeMap[activeTab]));
     } else {
-      setFilteredUsers(users.filter(user => user.userType === "student"));
+      setFilteredUsers(users);
     }
-  } else if (activeTab === "sales") {
-    setFilteredUsers(users.filter(user => user.userType === "sales"));
-  } else if (activeTab !== "all") {
-    const typeMap: Record<string, string> = {
-      schools: "school",
-      admins: "admin"
-    };
-    setFilteredUsers(users.filter(user => user.userType === typeMap[activeTab]));
-  } else {
-    setFilteredUsers(users);
-  }
-}, [selectedSchool, users, activeTab, schools]);
+  }, [selectedSchool, users, activeTab, schools]);
+
   // Fetch schools for the filter dropdown
   const fetchSchools = async () => {
     try {
@@ -137,37 +138,35 @@ useEffect(() => {
 
   // Apply school filter when selected school changes
   useEffect(() => {
-  if (activeTab === "students") {
-    if (selectedSchool) {
-      const schoolObj = schools.find((s) => s._id === selectedSchool);
-      const selectedSchoolName = (schoolObj?.schoolName || schoolObj?.name || "")
-        .toLowerCase()
-        .trim();
+    if (activeTab === "students") {
+      if (selectedSchool) {
+        const schoolObj = schools.find((s) => s._id === selectedSchool);
+        const selectedSchoolName = (schoolObj?.schoolName || schoolObj?.name || "")
+          .toLowerCase()
+          .trim();
 
-      const filtered = users.filter((user) => {
-        if (user.userType !== "student") return false;
+        const filtered = users.filter((user) => {
+          if (user.userType !== "student") return false;
 
-        const userSchoolName = user.schoolName?.toLowerCase().trim() || "";
-        const nestedSchoolName = user.school?.schoolName?.toLowerCase().trim() || "";
+          const userSchoolName = user.schoolName?.toLowerCase().trim() || "";
+          const nestedSchoolName = user.school?.schoolName?.toLowerCase().trim() || "";
 
-        return (
-          userSchoolName === selectedSchoolName ||
-          nestedSchoolName === selectedSchoolName
-        );
-      });
+          return (
+            userSchoolName === selectedSchoolName ||
+            nestedSchoolName === selectedSchoolName
+          );
+        });
 
-      setFilteredUsers(filtered);
+        setFilteredUsers(filtered);
+      } else {
+        // If "All Schools" selected, show all students
+        const allStudents = users.filter((user) => user.userType === "student");
+        setFilteredUsers(allStudents);
+      }
     } else {
-      // If "All Schools" selected, show all students
-      const allStudents = users.filter((user) => user.userType === "student");
-      setFilteredUsers(allStudents);
+      setFilteredUsers(users);
     }
-  } else {
-    setFilteredUsers(users);
-  }
-}, [selectedSchool, users, activeTab, schools]);
-
-
+  }, [selectedSchool, users, activeTab, schools]);
 
   // Notification helper
   const showNotification = (message: string) => {
@@ -338,7 +337,114 @@ useEffect(() => {
 
   return (
     <div className="flex min-h-screen bg-gray-50">
-      {/* Sidebar */}
+      {/* Mobile menu button */}
+      <button
+        onClick={() => setShowMobileMenu(!showMobileMenu)}
+        className="md:hidden fixed top-4 left-4 z-50 p-2 rounded-md bg-white shadow-md"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-6 w-6"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M4 6h16M4 12h16M4 18h16"
+          />
+        </svg>
+      </button>
+
+      {/* Sidebar - Mobile */}
+      {showMobileMenu && (
+        <div className="md:hidden fixed inset-0 z-40">
+          <div className="fixed inset-0 bg-black bg-opacity-50" onClick={() => setShowMobileMenu(false)}></div>
+          <div className="fixed inset-y-0 left-0 w-64 bg-white shadow-md transform transition-transform">
+            <div className="p-4 border-b border-gray-200">
+              <h2 className="text-lg font-semibold text-gray-800">User Types</h2>
+            </div>
+            <nav className="p-2">
+              <ul className="space-y-1">
+                <li>
+                  <button
+                    onClick={() => {
+                      setActiveTab("all")
+                      setSelectedSchool("")
+                      setShowMobileMenu(false)
+                    }}
+                    className={`w-full text-left px-4 py-2 rounded-lg ${
+                      activeTab === "all" ? 'bg-blue-50 text-blue-700' : 'text-gray-700 hover:bg-gray-100'
+                    }`}
+                  >
+                    All Users
+                  </button>
+                </li>
+                <li>
+                  <button
+                    onClick={() => {
+                      setActiveTab("schools")
+                      setSelectedSchool("")
+                      setShowMobileMenu(false)
+                    }}
+                    className={`w-full text-left px-4 py-2 rounded-lg ${
+                      activeTab === "schools" ? 'bg-blue-50 text-blue-700' : 'text-gray-700 hover:bg-gray-100'
+                    }`}
+                  >
+                    Schools
+                  </button>
+                </li>
+                <li>
+                  <button
+                    onClick={() => {
+                      setActiveTab("students")
+                      setSelectedSchool("")
+                      setShowMobileMenu(false)
+                    }}
+                    className={`w-full text-left px-4 py-2 rounded-lg ${
+                      activeTab === "students" ? 'bg-blue-50 text-blue-700' : 'text-gray-700 hover:bg-gray-100'
+                    }`}
+                  >
+                    Students
+                  </button>
+                </li>
+                <li>
+                  <button
+                    onClick={() => {
+                      setActiveTab("admins")
+                      setSelectedSchool("")
+                      setShowMobileMenu(false)
+                    }}
+                    className={`w-full text-left px-4 py-2 rounded-lg ${
+                      activeTab === "admins" ? 'bg-blue-50 text-blue-700' : 'text-gray-700 hover:bg-gray-100'
+                    }`}
+                  >
+                    Admins
+                  </button>
+                </li>
+                <li>
+                  <button
+                    onClick={() => {
+                      setActiveTab("sales")
+                      setSelectedSchool("")
+                      setShowMobileMenu(false)
+                    }}
+                    className={`w-full text-left px-4 py-2 rounded-lg ${
+                      activeTab === "sales" ? 'bg-blue-50 text-blue-700' : 'text-gray-700 hover:bg-gray-100'
+                    }`}
+                  >
+                    Sales
+                  </button>
+                </li>
+              </ul>
+            </nav>
+          </div>
+        </div>
+      )}
+
+      {/* Sidebar - Desktop */}
       <div className="w-64 bg-white shadow-md hidden md:block">
         <div className="p-4 border-b border-gray-200">
           <h2 className="text-lg font-semibold text-gray-800">User Types</h2>
@@ -427,18 +533,16 @@ useEffect(() => {
 
         <div className="flex flex-col md:flex-row justify-between md:items-center mb-6 gap-4">
           <h2 className="text-2xl font-bold text-education-dark">User Management</h2>
-        </div>
-        
-        {activeTab === "sales" && (
-          <div className="flex justify-end mb-4">
+          
+          {activeTab === "sales" && (
             <button
               onClick={() => setShowUploadModal(true)}
-              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 w-full md:w-auto"
             >
               Add Sales Members
             </button>
-          </div>
-        )}
+          )}
+        </div>
 
         {showUploadModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60">
@@ -448,9 +552,9 @@ useEffect(() => {
                 type="file"
                 accept=".csv,.xlsx,.xls"
                 onChange={handleFileUploadChange}
-                className="mb-4"
+                className="mb-4 w-full p-2 border rounded"
               />
-              <div className="flex justify-end gap-4">
+              <div className="flex flex-col sm:flex-row justify-end gap-4">
                 <button
                   onClick={() => setShowUploadModal(false)}
                   className="px-4 py-2 rounded-lg bg-gray-300 hover:bg-gray-400"
@@ -507,7 +611,7 @@ useEffect(() => {
         {/* Edit Form */}
         {editingUser && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4">
-            <div className="bg-white p-6 sm:p-8 rounded-lg shadow-lg max-w-lg w-full space-y-6">
+            <div className="bg-white p-6 sm:p-8 rounded-lg shadow-lg max-w-lg w-full space-y-6 overflow-y-auto max-h-screen">
               <h3 className="text-xl sm:text-2xl font-semibold text-gray-800 mb-4">Edit User: {editingUser.name}</h3>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -606,16 +710,16 @@ useEffect(() => {
 
               <div className="mt-6 flex flex-col sm:flex-row justify-end gap-3 sm:space-x-4">
                 <button
-                  className="bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 order-2 sm:order-1"
-                  onClick={handleUpdate}
-                >
-                  Save
-                </button>
-                <button
                   className="bg-gray-300 text-gray-800 px-6 py-2 rounded-lg hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 order-1 sm:order-2"
                   onClick={() => setEditingUser(null)}
                 >
                   Cancel
+                </button>
+                <button
+                  className="bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 order-2 sm:order-1"
+                  onClick={handleUpdate}
+                >
+                  Save
                 </button>
               </div>
             </div>
@@ -623,7 +727,6 @@ useEffect(() => {
         )}
 
         {/* Users Table */}
-{/* Users Table */}
         <div className="overflow-x-auto bg-white shadow rounded-lg">
           <div className="min-w-full overflow-hidden overflow-x-auto">
             {filteredUsers.length === 0 ? (
