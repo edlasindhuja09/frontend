@@ -31,7 +31,7 @@ const AdminDashboard = () => {
       {/* Sidebar - hidden on mobile, shown on desktop */}
       <aside className="hidden lg:block fixed top-0 left-0 z-30 h-screen bg-white shadow-md border-r w-64">
         <div className="p-4 h-full">
-          <h2 className="text-2xl font-bold text-education-blue mb-8 text-center">Admin Panel</h2>
+         
           <nav className="space-y-2">
             {navItems.map((item) => (
               <Link
