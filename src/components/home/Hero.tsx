@@ -4,108 +4,65 @@ import { useState, useEffect } from "react";
 import { ExamData } from "../../pages/exams/types";
 
 const Hero = () => {
+   const backendUrl = import.meta.env.VITE_BACKEND_URL;
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [featuredExams, setFeaturedExams] = useState<ExamData[]>([]);
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [loading, setLoading] = useState(true);
+ 
 
   useEffect(() => {
-    const userToken = localStorage.getItem("userToken");
-    setIsLoggedIn(!!userToken);
-  }, []);
+    // Check login status when component mounts
+    const checkLoginStatus = () => {
+      const userToken = localStorage.getItem("userToken");
+      setIsLoggedIn(!!userToken);
+    };
 
-  useEffect(() => {
-    const controller = new AbortController();
+    checkLoginStatus();
 
+    // Listen for storage changes to detect logout from other tabs/windows
+    const handleStorageChange = () => {
+      checkLoginStatus();
+    };
+
+    // Fetch all exams and filter featured ones
     const fetchExams = async () => {
       try {
-        setLoading(true);
-        const response = await fetch("http://localhost:5000/api/exams", {
-          signal: controller.signal,
-        });
-        if (!response.ok) throw new Error("Failed to fetch exams");
-
+        const response = await fetch(`${backendUrl}/api/exams`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch exams');
+        }
         const data = await response.json();
-        const featured = data.filter(
-          (exam: ExamData) => exam.featured === true && exam.status === "active"
+        // Filter exams where featured is true and status is active
+        const featured = data.filter((exam: ExamData) => 
+          exam.featured === true && exam.status === 'active'
         );
         setFeaturedExams(featured);
       } catch (err) {
-        if (err.name !== "AbortError") {
-          console.error("Error fetching exams:", err);
-        }
-      } finally {
-        setLoading(false);
+        console.error('Error fetching exams:', err);
       }
     };
 
     fetchExams();
 
-    return () => controller.abort();
+    window.addEventListener('storage', handleStorageChange);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
   }, []);
 
+  // Auto-rotate carousel every 5 seconds
   useEffect(() => {
     if (featuredExams.length <= 1) return;
 
     const interval = setInterval(() => {
-      setCurrentSlide((prev) => (prev === featuredExams.length - 1 ? 0 : prev + 1));
+      setCurrentSlide((prev) => 
+        prev === featuredExams.length - 1 ? 0 : prev + 1
+      );
     }, 5000);
 
     return () => clearInterval(interval);
   }, [featuredExams.length]);
-
-  const renderExamCard = () => {
-    const currentExam = featuredExams[currentSlide];
-
-    return (
-      <div className="bg-white rounded-xl shadow-xl overflow-hidden">
-        <img
-          loading="lazy"
-          src={
-            currentExam?.image ||
-            "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80"
-          }
-          alt={currentExam?.title}
-          className="w-full h-64 object-cover object-center"
-        />
-        <div className="p-6">
-          <div className="flex justify-between items-center mb-4">
-            <span className="bg-blue-100 text-education-blue text-xs font-semibold px-3 py-1 rounded-full">
-              Featured
-            </span>
-            <span className="text-sm text-gray-500">
-              {currentExam?.date &&
-                new Date(currentExam.date).toLocaleDateString("en-US", {
-                  month: "short",
-                  day: "numeric",
-                  year: "numeric",
-                })}
-            </span>
-          </div>
-          <h3 className="text-xl font-semibold mb-2">{currentExam?.title}</h3>
-          <p className="text-gray-600 mb-4 line-clamp-2">{currentExam?.description}</p>
-          <Link
-            to={`/exams/${currentExam?.id}`}
-            className="text-education-blue font-medium hover:underline flex items-center"
-          >
-            Learn More <ArrowRight size={16} className="ml-1" />
-          </Link>
-        </div>
-      </div>
-    );
-  };
-
-  const renderPlaceholder = () => (
-    <div className="bg-white rounded-xl shadow-xl overflow-hidden animate-pulse">
-      <div className="w-full h-64 bg-gray-300" />
-      <div className="p-6 space-y-4">
-        <div className="h-4 w-24 bg-gray-300 rounded-full"></div>
-        <div className="h-6 w-3/4 bg-gray-300 rounded"></div>
-        <div className="h-4 w-full bg-gray-300 rounded"></div>
-        <div className="h-4 w-1/2 bg-gray-300 rounded"></div>
-      </div>
-    </div>
-  );
 
   return (
     <div className="bg-gradient-to-b from-blue-50 to-white py-16 md:py-20">
@@ -131,7 +88,48 @@ const Hero = () => {
           </div>
 
           <div className="lg:w-5/12 lg:pl-8 relative">
-            {loading ? renderPlaceholder() : featuredExams.length > 0 ? renderExamCard() : (
+            {featuredExams.length > 0 ? (
+              <div className="relative">
+                <div className="bg-white rounded-xl shadow-xl overflow-hidden">
+                  <img
+                    src={featuredExams[currentSlide]?.image || "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80"}
+                    alt={featuredExams[currentSlide]?.title}
+                    className="w-full h-64 object-cover object-center"
+                  />
+                  <div className="p-6">
+                    <div className="flex justify-between items-center mb-4">
+                      <span className="bg-blue-100 text-education-blue text-xs font-semibold px-3 py-1 rounded-full">Featured</span>
+                      <span className="text-sm text-gray-500">
+                        {featuredExams[currentSlide]?.date && new Date(featuredExams[currentSlide].date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                      </span>
+                    </div>
+                    <h3 className="text-xl font-semibold mb-2">{featuredExams[currentSlide]?.title}</h3>
+                    <p className="text-gray-600 mb-4 line-clamp-2">
+                      {featuredExams[currentSlide]?.description}
+                    </p>
+                    <Link 
+                      to={`/exams/${featuredExams[currentSlide]?.id}`} 
+                      className="text-education-blue font-medium hover:underline flex items-center"
+                    >
+                      Learn More <ArrowRight size={16} className="ml-1" />
+                    </Link>
+                  </div>
+                </div>
+                
+                {/* Indicators only - no navigation buttons */}
+                {featuredExams.length > 1 && (
+                  <div className="flex justify-center mt-4 space-x-2">
+                    {featuredExams.map((_, index) => (
+                      <div
+                        key={index}
+                        className={`w-2 h-2 rounded-full ${currentSlide === index ? 'bg-education-blue' : 'bg-gray-300'}`}
+                        aria-label={`Slide ${index + 1}`}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+            ) : (
               <div className="bg-white rounded-xl shadow-xl overflow-hidden">
                 <img
                   src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80"
@@ -140,9 +138,7 @@ const Hero = () => {
                 />
                 <div className="p-6">
                   <div className="flex justify-between items-center mb-4">
-                    <span className="bg-blue-100 text-education-blue text-xs font-semibold px-3 py-1 rounded-full">
-                      Featured
-                    </span>
+                    <span className="bg-blue-100 text-education-blue text-xs font-semibold px-3 py-1 rounded-full">Featured</span>
                     <span className="text-sm text-gray-500">Coming Soon</span>
                   </div>
                   <h3 className="text-xl font-semibold mb-2">Featured Exams</h3>
@@ -151,19 +147,6 @@ const Hero = () => {
                     Browse Exams <ArrowRight size={16} className="ml-1" />
                   </Link>
                 </div>
-              </div>
-            )}
-
-            {/* Indicators */}
-            {!loading && featuredExams.length > 1 && (
-              <div className="flex justify-center mt-4 space-x-2">
-                {featuredExams.map((_, index) => (
-                  <div
-                    key={index}
-                    className={`w-2 h-2 rounded-full ${currentSlide === index ? 'bg-education-blue' : 'bg-gray-300'}`}
-                    aria-label={`Slide ${index + 1}`}
-                  />
-                ))}
               </div>
             )}
           </div>
