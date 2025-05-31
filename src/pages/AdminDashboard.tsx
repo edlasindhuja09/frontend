@@ -26,14 +26,8 @@ const AdminDashboard = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Mobile header - only shown on mobile */}
-      <header className="lg:hidden bg-white shadow-sm p-4 flex items-center justify-between sticky top-0 z-40">
+      <header className="lg:hidden bg-white shadow-sm p-4 flex items-center justify-center sticky top-0 z-40">
         <h2 className="text-xl font-bold text-education-blue">Admin Panel</h2>
-        <button 
-          onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="p-2 rounded-md text-gray-700 hover:bg-gray-100 focus:outline-none"
-        >
-          {sidebarOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-        </button>
       </header>
 
       {/* Sidebar - hidden on mobile, shown on desktop */}
